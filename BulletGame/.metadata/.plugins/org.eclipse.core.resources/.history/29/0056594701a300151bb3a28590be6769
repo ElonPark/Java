@@ -1,0 +1,47 @@
+package bulletGamePack;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class InputName extends JFrame implements ActionListener {
+    JTextArea txtA = new JTextArea();  
+    JTextField txtF = new JTextField(15);
+    String name;
+    
+    JButton btnExit = new JButton("닫기");
+    
+    JPanel p1 = new JPanel();
+    
+    InputName(){
+        add("Center", txtA);
+        p1.add(txtF);
+       
+        p1.add(btnExit);
+        
+        add("South", p1);
+        
+        btnExit.addActionListener(this);
+        
+        name = txtF.getText();
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setBounds(300, 300, 350, 300);
+        setVisible(true);
+   
+    }
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if(e.getSource() == btnExit)
+        {
+            this.dispose();
+        }
+
+		
+	}
+}
