@@ -1,0 +1,225 @@
+package bulletGamePack;
+
+/*--------------------------------------------
+ * 프로그램명 : 사격 게임
+ * 개발자       : 박성운
+ * 개발기간    : 2015/12/04 ~ 2015/12/18
+ * 사용방법    : 이클립스
+ --------------------------------------------*/
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
+
+public class BulletGame extends JFrame {
+
+	String[] strColors = { "Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Default" };
+	JLabel lStatusBar = new JLabel("게임을 시작합니다..");
+	JPanel pPointBoard = new JPanel(new GridLayout(0, 1));
+	JLabel LUser = new JLabel();
+	JLabel lLevel = new JLabel("      레벨");
+	Frame infoFrame;
+
+	String[] sLevel = { "1단계", "2단계", "3단계" }; // Level 설정 콤보박스의 아이템
+
+	JComboBox combo = new JComboBox(sLevel); // Level 설정 콤보박스 생성
+
+	/*
+	 * // 이 게임의 생성자로서 게임을 시작한다... public BulletGame() { InputName nameInput =
+	 * new InputName(); User = new JLabel("유저 이름: "+nameInput.txtF.getText());
+	 * 
+	 * }
+	 */
+	void gameFrame() {
+		final GamePanel pGame = new GamePanel();
+		// pGame.setBackground(bg); 게임 패널 배경
+
+		setTitle("우리조 자바기말프로젝트 : 사격 게임");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BorderLayout(1, 1));
+
+		createMenu();
+		// 콤보박스에 Action 리스너 등록. 선택된 아이템의 이미지 출력
+		combo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				JComboBox cb = (JComboBox) e.getSource(); // Action 이벤트가 발생한
+															// 콤보박스 알아내기
+				int index = cb.getSelectedIndex(); // 콤보박스의 선택된 레벨의 인덱스 번호 알아내기
+				lStatusBar.setText(sLevel[index]); // 레벨명을 StatusBar에 출력
+
+				// 난이도 설정
+				// 타겟의 속도와 총알의 속도를 조절한다.
+				if (cb.getSelectedIndex() == 0) {
+					pGame.tagetSpeed = 5;
+					pGame.bulletSpeed = 5;
+					pGame.baseLabel.grabFocus();
+
+				} else if (cb.getSelectedIndex() == 1) {
+					pGame.tagetSpeed = 10;
+					pGame.bulletSpeed = 10;
+					pGame.baseLabel.grabFocus();
+				} else if (cb.getSelectedIndex() == 2) {
+					pGame.tagetSpeed = 20;
+					pGame.bulletSpeed = 20;
+					pGame.baseLabel.grabFocus();
+				}
+			}
+		});
+
+		pPointBoard.add(lLevel);
+		pPointBoard.add(combo);
+		pPointBoard.add(LUser);
+		pPointBoard.add(pGame.Ltaget);
+		pPointBoard.add(pGame.Lpoint);
+		pPointBoard.add(pGame.LhitPerc);
+		pPointBoard.setBackground(Color.white);
+
+		lStatusBar.setForeground(Color.GREEN);
+
+		add(pPointBoard, BorderLayout.WEST);
+		add(pGame, BorderLayout.CENTER);
+		add(lStatusBar, BorderLayout.SOUTH);
+
+		setSize(600, 400);
+		setResizable(false);
+		setVisible(true);
+
+		// 화면에 모두 그려지면, 즉 컨텐트팬을 구성하는 모든 컴포넌트들의 위치와 크기가 결정된 후
+		// 게임을 시작하게 한다.
+		pGame.startGame();
+	}
+
+	// 메뉴를 만들어 프레임에 삽입한다.
+	void createMenu() {
+		JMenuBar mb = new JMenuBar(); // 메뉴바 생성
+		JMenuItem[] menuItem = new JMenuItem[4];
+		String[] itemTitle = { "새게임", "stop", "restart", "Exit" };
+		JMenu screenMenu = new JMenu("Game");
+		JMenuItem[] menuSet = new JMenuItem[2];
+		String[] itemSetting = { "이름 변경", "발사체" };
+		JMenu settingMenu = new JMenu("상태");
+		JMenuItem[] miColors = new JMenuItem[7];
+		JMenu helpMenu = new JMenu("도움");
+		JMenu bhMenu = new JMenu("배경");
+		settingMenu.add(bhMenu);
+
+		JMenuItem[] menuHelp = new JMenuItem[1];
+		String[] itemHelp = { "조원소개" };
+
+		// 4 개의 메뉴아이템을 Screen 메뉴에 삽입한다.
+		MenuActionListener listener = new MenuActionListener(); // Action 리스너 생성
+
+		for (int i = 0; i < menuItem.length; i++) {
+			menuItem[i] = new JMenuItem(itemTitle[i]); // 메뉴아이템 생성
+			menuItem[i].addActionListener(listener); // 메뉴아이템에 Action 리스너 등록
+			screenMenu.add(menuItem[i]); // 메뉴아이템을 Screen 메뉴에 삽입
+		}
+
+		for (int i = 0; i < menuHelp.length; i++) {
+			menuHelp[i] = new JMenuItem(itemHelp[i]); // 메뉴아이템 생성
+			menuHelp[i].addActionListener(listener); // 메뉴아이템에 Action 리스너 등록
+			helpMenu.add(menuHelp[i]); // 메뉴아이템을 Screen 메뉴에 삽입
+		}
+
+		for (int i = 0; i < menuSet.length; i++) {
+			menuSet[i] = new JMenuItem(itemSetting[i]); // 메뉴아이템 생성
+			menuSet[i].addActionListener(listener); // 메뉴아이템에 Action 리스너 등록
+			settingMenu.add(menuSet[i]); // 메뉴아이템을 Screen 메뉴에 삽입
+		}
+		miColors = new JMenuItem[strColors.length]; // miColors객체에 길이를 지정해주는
+		for (int i = 0; i < miColors.length; i++) { // i를 지정해서
+			miColors[i] = new JMenuItem(strColors[i]); // miColors[i] 클래스 인스턴스
+														// 생성
+			miColors[i].addActionListener(listener); // miFonts[i] 객체에
+														// ActionListener 연결
+			bhMenu.add(miColors[i]); // vmColor객체에 miColors[i]를 추가한다. */
+		}
+
+		mb.add(screenMenu); // 메뉴바에 Screen 메뉴 삽입
+		mb.add(settingMenu);
+		mb.add(helpMenu);
+		setJMenuBar(mb); // 메뉴바를 프레임에 부착
+	}
+
+	class MenuActionListener implements ActionListener { // 메뉴아이템 처리 Action 리스너
+		public void actionPerformed(ActionEvent e) {
+			String itemPressed = e.getActionCommand();
+			String cmd = e.getActionCommand(); // 사용자가 선택한 메뉴아이템의 문자열 리턴
+			GamePanel pGame = new GamePanel();
+			InputName in = new InputName();
+
+			switch (cmd) { // 메뉴 아이템의 종류 구분
+			case "새게임":
+				try {
+					pGame.targetThread.sleep(pGame.bulletSpeed);
+				} catch (InterruptedException e1) {
+
+				}
+
+				in.Input();
+				break;
+
+			case "stop":
+
+				GamePanel.IS_PAUSED = true;
+
+				break;
+			case "restart":
+				GamePanel.IS_PAUSED = false;
+
+				break;
+			case "Exit":
+				
+				System.exit(0);
+				break;
+			case "이름 변경":
+
+				String name = JOptionPane.showInputDialog("이름을 입력하세요.");
+				LUser.setText("  유저: " + name);
+
+				break;
+			case "발사체":
+
+				break;
+			case "조원소개":
+				
+				infoshow();
+				break;
+
+			}
+
+		}
+
+	}
+
+	void infoshow() {
+		infoFrame = new Frame("조원 소개");
+		infoFrame.addWindowListener(new WindowAdapter() {
+
+			public void windowClosing(WindowEvent we) {
+
+				infoFrame.dispose();
+			}
+		});
+		Label Fla = new Label("출력");
+
+		JLabel la4 = new JLabel(new ImageIcon("images/Chikin.png"));
+		ScrollPane scp = new ScrollPane();
+
+		infoFrame.add("North", Fla);
+		infoFrame.add("South", la4);
+
+		infoFrame.pack();
+		infoFrame.setSize(500, 800);
+		infoFrame.setVisible(true);
+	}
+
+	public static void main(String[] args) {
+
+		InputName ipn = new InputName();
+		ipn.Input();
+
+	}
+
+}

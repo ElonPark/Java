@@ -18,10 +18,10 @@ class GamePanel extends JPanel {
 	JLabel bulletLabel = new JLabel(bulletImg);
 	JLabel targetLabel;
 
-	final int gPanelWidth = 426;
-	final int gPanelHeight = 439;
+	final int gPanelWidth = 508;
+	final int gPanelHeight = 339;
 	int tagetSpeed = 5; // 적의 속도
-	int bulletSpeed = 10; // 총알 속도 조절
+	int bulletSpeed = 5; // 총알 속도 조절
 
 	int tagNum = 0;// 타겟 숫자
 	int hitTa = 0;// Hit 수
@@ -29,8 +29,9 @@ class GamePanel extends JPanel {
 	long hitPer = 0;// Hit율
 
 	int rocaionX;// 랜덤 X
-
 	int rocaionY;// 랜덤 Y
+
+	public static boolean IS_PAUSED = false;
 
 	JLabel Ltaget = new JLabel("  타겟 수: " + tagNum);
 	JLabel Lpoint = new JLabel("  Hit 수: " + hitTa);
@@ -41,34 +42,33 @@ class GamePanel extends JPanel {
 	public GamePanel() {
 		setLayout(null);
 
-		baseLabel.setSize(40, baseImg.getIconHeight());
-		baseLabel.setOpaque(true);
-		// baseLabel.setBackground(Color.BLACK);
+		baseLabel.setSize(40, baseImg.getIconHeight()); // 베이스 크기 설정
 
 		ImageIcon img = new ImageIcon("images/monster.png");
 		targetLabel = new JLabel(img);
 		targetLabel.setSize(img.getIconWidth(), img.getIconWidth());
 
 		bulletLabel.setSize(10, 10);
-		bulletLabel.setOpaque(true);
-		// bulletLabel.setBackground(Color.RED);
+
 		add(baseLabel);
 		add(targetLabel);
 		add(bulletLabel);
+
 	}
 
 	public void startGame() {
 
 		int setWi = this.getWidth() / 2 - 20;
-		int setHe = this.getHeight() - 50;
-		baseLabel.setLocation(setWi, setHe);
-		bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
+		final int setHe = this.getHeight() - 50;
+		baseLabel.setLocation(setWi, setHe);// 베이스 라벨 위치 설정
+		bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());// 총알
+																			// 위치설정
 		System.out.println("넓이 : " + GamePanel.this.getWidth());
 		System.out.println("높이 : " + GamePanel.this.getHeight());
 
-		targetLabel.setLocation(0, 0);
+		targetLabel.setLocation(0, 0); // 타겟 시작 위치
 
-		targetThread = new TargetThread(targetLabel);
+		targetThread = new TargetThread(targetLabel); // 타겟 스레드 시작
 		targetThread.start();
 
 		baseLabel.requestFocus();
@@ -77,47 +77,52 @@ class GamePanel extends JPanel {
 			BulletThread bulletThread = null;
 
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_SPACE) { // 스페이스바 누르면 총알 발사 시작
-					if (bulletThread == null || !bulletThread.isAlive()) {
+				if (!IS_PAUSED) {
+					if (e.getKeyCode() == KeyEvent.VK_SPACE) { // 스페이스바 누르면 총알
+																// 발사 시작
+						if (bulletThread == null || !bulletThread.isAlive()) {
 
-						shot += 1;
-						bulletThread = new BulletThread(bulletLabel, targetLabel, targetThread);
-						bulletThread.start();
+							shot += 1;
+							bulletThread = new BulletThread(bulletLabel, targetLabel, targetThread);
+							bulletThread.start();
 
-					}
+						}
 
-				} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) { // 방향키 오른쪽 누르면
-																	// 오른쪽으로
-					baseLabel.setLocation(baseLabel.getX() + 5, setHe);
-					bulletLabel.setLocation(baseLabel.getX() + 15, bulletLabel.getY());
+					} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) { // 방향키 오른쪽
+																		// 누르면
+																		// 오른쪽으로
+						baseLabel.setLocation(baseLabel.getX() + 5, setHe);
+						bulletLabel.setLocation(baseLabel.getX() + 15, bulletLabel.getY());
 
-					// System.out.println("위치 X : " + baseLabel.getX());
-					// System.out.println("위치 Y : " + baseLabel.getY());
+						// System.out.println("위치 X : " + baseLabel.getX());
+						// System.out.println("위치 Y : " + baseLabel.getY());
 
-					if (baseLabel.getX() >= GamePanel.this.getWidth()) {// 오른쪽
-																		// 화면을
-																		// 넘어가면
-																		// 왼쪽
-																		// 화면에서
-																		// 나옴
+						if (baseLabel.getX() >= GamePanel.this.getWidth()) {// 오른쪽
+																			// 화면을
+																			// 넘어가면
+																			// 왼쪽
+																			// 화면에서
+																			// 나옴
 
-						baseLabel.setLocation(0, setHe);
-						bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
+							baseLabel.setLocation(0, setHe);
+							bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
 
-					}
+						}
 
-				} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {// 방향키 왼쪽 누르면
-																// 왼쪽으로
+					} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {// 방향키 왼쪽
+																	// 누르면
+																	// 왼쪽으로
 
-					baseLabel.setLocation(baseLabel.getX() - 5, setHe);
-					bulletLabel.setLocation(baseLabel.getX() + 15, bulletLabel.getY());
-					// System.out.println("위치 X : " + baseLabel.getX());
-					// System.out.println("위치 Y : " + baseLabel.getY());
+						baseLabel.setLocation(baseLabel.getX() - 5, setHe);
+						bulletLabel.setLocation(baseLabel.getX() + 15, bulletLabel.getY());
+						// System.out.println("위치 X : " + baseLabel.getX());
+						// System.out.println("위치 Y : " + baseLabel.getY());
 
-					if (baseLabel.getX() <= 0) { // 왼쪽 화면을 넘어가면 오른쪽 화면에서 나옴
-						baseLabel.setLocation(GamePanel.this.getWidth(), setHe);
-						bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
+						if (baseLabel.getX() <= 0) { // 왼쪽 화면을 넘어가면 오른쪽 화면에서 나옴
+							baseLabel.setLocation(GamePanel.this.getWidth(), setHe);
+							bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
 
+						}
 					}
 				}
 			}
@@ -143,37 +148,47 @@ class GamePanel extends JPanel {
 
 			while (true) {
 
-				// 적 위치
-				rocaionX = (int) (Math.random() * 135);
-				rocaionY = (int) (Math.random() * 140);
+				if (!IS_PAUSED) {
+					// 적 위치
+					rocaionX = (int) (Math.random() * 135);
+					rocaionY = (int) (Math.random() * 140);
 
-				int x = target.getX() + tagetSpeed; // 적 움직임 설정
-				int y = target.getY();
+					int x = target.getX() + tagetSpeed; // 적 움직임 설정
+					int y = target.getY();
 
-				if (x > gPanelWidth || y < 0) {
-					target.setLocation(rocaionX, rocaionY); // 현재 적 위치가 패널을
-															// 넘어가면, 적 위치를 랜덤으로
-					tagNum += 1;
-					Ltaget.setText("  타겟 수: " + tagNum);
+					if (x > gPanelWidth || y < 0) {
+						target.setLocation(rocaionX, rocaionY); // 현재 적 위치가 패널을
+																// 넘어가면, 적 위치를
+																// 랜덤으로
+						tagNum += 1;
+						Ltaget.setText("  타겟 수: " + tagNum);
+
+					} else {
+						target.setLocation(x, y);
+					}
+					target.getParent().repaint();
+
+					try {
+						sleep(20);
+					} catch (InterruptedException e) {
+						// the case of hit by a bullet
+						// 타겟이 총에 맞으면 새로 그리고 점수를 증가
+
+						target.setLocation(rocaionX, rocaionY);
+						target.getParent().repaint();
+						tagNum += 1;
+						Ltaget.setText("  타겟 수: " + tagNum);
+						try {
+							sleep(500); // 0.5초 기다린 후에 계속한다.
+						} catch (InterruptedException e2) {
+						}
+					}
 
 				} else {
-					target.setLocation(x, y);
-				}
-				target.getParent().repaint();
-
-				try {
-					sleep(20);
-				} catch (InterruptedException e) {
-					// the case of hit by a bullet
-					// 타겟이 총에 맞으면 새로 그리고 점수를 증가
-
-					target.setLocation(rocaionX, rocaionY);
-					target.getParent().repaint();
-					tagNum += 1;
-					Ltaget.setText("  타겟 수: " + tagNum);
 					try {
-						sleep(500); // 0.5초 기다린 후에 계속한다.
-					} catch (InterruptedException e2) {
+						sleep(20);
+						// System.out.println("paused");
+					} catch (InterruptedException e) {
 					}
 				}
 			}
@@ -193,44 +208,42 @@ class GamePanel extends JPanel {
 
 		public void run() {
 			while (true) {
-				// 명중하였는지 확인
-				if (hit()) {
+				if (!IS_PAUSED) {
+					// 명중하였는지 확인
+					if (hit()) {
 
-					hitTa += 1; // 명중하면 점수 1점 증
-					Lpoint.setText("  Hit수: " + hitTa);// 라벨에 입력
-					hitPer = Math.round((hitTa * 100) / shot);// 명중률 계산
-					LhitPerc.setText("  명중률: " + hitPer + "%"); // 라벨에 입력
-					System.out.println(
-							"발사: " + shot + " 타겟 수: " + tagNum + " Hit 수: " + hitTa + " Hit율: " + hitPer + "%");
-					targetThread.interrupt(); // 타겟에 총알이 맞으면 총알 위치를 설정
+						hitTa += 1; // 명중하면 점수 1점 증
+						Lpoint.setText("  Hit수: " + hitTa);// 라벨에 입력
+						hitPer = Math.round((hitTa * 100) / shot);// 명중률 계산
+						LhitPerc.setText("  명중률: " + hitPer + "%"); // 라벨에 입력
+						System.out.println(
+								"발사: " + shot + " 타겟 수: " + tagNum + " Hit 수: " + hitTa + " Hit율: " + hitPer + "%");
+						targetThread.interrupt(); // 타겟에 총알이 맞으면 총알 위치를 설정
 
-					// bullet.setLocation(bullet.getParent().getWidth()/2 - 5,
-					// bullet.getParent().getHeight()-50);
+						bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY()); // 위치
+																							// 초기화
 
-					bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY()); // 위치
-																						// 초기화
+						return;
+					} else {
+						int x = bullet.getX();
+						int y = bullet.getY() - 5; // 총알 위치를 5씩 감소하여 위로 올린다.
 
-					return;
-				} else {
-					int x = bullet.getX();
-					int y = bullet.getY() - 5; // 총알 위치를 5씩 감소하여 위로 올린다.
+						if (y < 0) {// 총알이 화면을 넘어가면 위치를 초기화한다.
 
-					if (y < 0) {// 총알이 화면을 넘어가면 위치를 초기화한다.
-						// bullet.setLocation(bullet.getParent().getWidth()/2 -
-						// 5, bullet.getParent().getHeight()-50);
-						bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
+							bulletLabel.setLocation(baseLabel.getX() + 15, baseLabel.getY());
 
+							bullet.getParent().repaint();
+
+							return; // thread ends
+						}
+						bullet.setLocation(x, y);
 						bullet.getParent().repaint();
-
-						return; // thread ends
 					}
-					bullet.setLocation(x, y);
-					bullet.getParent().repaint();
-				}
-				try {
+					try {
 
-					sleep(bulletSpeed);
-				} catch (InterruptedException e) {
+						sleep(bulletSpeed);
+					} catch (InterruptedException e) {
+					}
 				}
 			}
 		}
